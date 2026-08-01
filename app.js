@@ -5,7 +5,7 @@
 // ==========================================================================
 // 1. EDITABLE MESSAGE TEMPLATES & GLOBAL CONFIGURATION
 // ==========================================================================
-let COMPANY_NAME = "Amrita Admissions Cell";
+let COMPANY_NAME = "Saveetha Admissions Cell";
 
 let WHATSAPP_TEMPLATE = "Dear {name}, thank you for speaking with our Admissions Office regarding your application for {role} at {company}. Next step: {next_step}. For further queries, call/WhatsApp our Admission Desk at 8122280223!";
 
@@ -77700,10 +77700,10 @@ function saveCustomTemplates() {
 }
 
 function resetCustomTemplates() {
-    COMPANY_NAME = "TechCorp Talent";
-    WHATSAPP_TEMPLATE = "Hi {name}! 👋 Following up regarding your application for the {role} position at {company}. Next step: {next_step}. Let me know your availability!";
-    EMAIL_SUBJECT_TEMPLATE = "Application Update: {role} at {company}";
-    EMAIL_BODY_TEMPLATE = "Hi {name},\n\nIt was great connecting with you about the {role} role at {company}.\n\nAs a quick follow-up, here is our next step: {next_step}.\n\nPlease reply to this email with your preferred times for a conversation.\n\nBest regards,\nTalent Acquisition Team\n{company}";
+    COMPANY_NAME = "Saveetha Admissions Cell";
+    WHATSAPP_TEMPLATE = "Dear {name}, thank you for speaking with our Admissions Office regarding your application for {role} at {company}. Next step: {next_step}. For further queries, call/WhatsApp our Admission Desk at 8122280223!";
+    EMAIL_SUBJECT_TEMPLATE = "Official Admission Information & Next Steps - {role}";
+    EMAIL_BODY_TEMPLATE = "Dear {name},\n\nThank you for connecting with the Admissions Cell regarding your interest in the {role} program at {company}.\n\nAs discussed during our call, your immediate next step is:\n👉 {next_step}\n\nPlease submit your required documents at your earliest convenience.\n\nFor any admission queries, seat allocation details, or fee structure guidance, feel free to call or WhatsApp our Admissions Desk at 8122280223.\n\nWarm regards,\nAdmissions Office\n{company}\nHotline: 8122280223";
 
     saveTemplatesState();
     openTemplatesModal();
