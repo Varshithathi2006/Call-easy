@@ -320,11 +320,14 @@ document.addEventListener('DOMContentLoaded', () => {
         callState = 'calling';
         renderCallStateUI();
 
-        showToast(`Calling ${candidate.name}...`);
+        const savedBackendUrl = localStorage.getItem('call_easy_backend_url') || '';
+        const base = savedBackendUrl.trim().replace(/\/$/, '');
+        const callApiEndpoint = base ? `${base}/api/call` : '/api/call';
 
-        // Try backend Twilio call API first
+        showToast(`Initiating Twilio call to ${candidate.name}...`);
+
         try {
-            const res = await fetch('/api/call', {
+            const res = await fetch(callApiEndpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -336,26 +339,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (res.ok) {
                 const data = await res.json();
+                console.log('[Twilio Call Response]', data);
                 if (data.mode === 'live_twilio') {
-                    showToast(`Twilio calling your phone! Answer to connect to ${candidate.name}`);
-                    return;
+                    showToast(`📞 Calling your phone! Answer incoming call from Twilio to connect to ${candidate.name}.`);
+                } else {
+                    showToast(data.message || `📞 Twilio call initiated! Answer incoming call on your phone.`);
                 }
+                return;
             }
-        } catch (err) {}
-
-        // Fallback for static hosting (GitHub Pages) or when backend unavailable: trigger device dialer
-        if (candidate.phone) {
-            window.location.href = `tel:${candidate.phone.replace(/[^0-9+]/g, '')}`;
+        } catch (err) {
+            console.warn('[Call Request Error]', err);
         }
-        showToast(`Dialer opened! Tap "Mark Call Complete" when finished.`);
+
+        // If backend API call is not reachable (e.g. static GitHub Pages without backend URL configured)
+        callState = 'idle';
+        renderCallStateUI();
+
+        showToast(`🔒 Backend Required: Enter your ngrok URL in Settings (⚙️) to place Twilio masked calls.`);
+        
+        // Auto-open Setup modal to guide user to enter ngrok/backend URL
+        setTimeout(() => {
+            setupModal.classList.add('active');
+        }, 800);
     }
 
     async function handleMarkCallComplete() {
         const candidate = candidates[currentIndex];
 
-        // 1. Try backend auto-send endpoint if connected
+        const savedBackendUrl = localStorage.getItem('call_easy_backend_url') || '';
+        const base = savedBackendUrl.trim().replace(/\/$/, '');
+        const completeApiEndpoint = base ? `${base}/api/complete-call` : '/api/complete-call';
+
         try {
-            const res = await fetch('/api/complete-call', {
+            const res = await fetch(completeApiEndpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -366,16 +382,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (res.ok) {
                 const data = await res.json();
+
                 candidate.status = 'contacted';
                 persistCandidates();
+
                 callState = 'idle';
                 renderCandidateCard();
-                showToast(`✓ Call Complete! Follow-up sent to ${candidate.name}`);
+
+                let toastMsg = `✓ Call Complete! Follow-up sent to ${candidate.name}`;
+                if (data.emailResult && data.emailResult.sent) {
+                    toastMsg += ` (Email delivered)`;
+                }
+                showToast(toastMsg);
                 return;
             }
         } catch (err) {}
 
-        // 2. Static GitHub Pages Fallback: update status & offer 1-tap WhatsApp follow-up
+        // Static fallback update if server unreachable
         candidate.status = 'contacted';
         persistCandidates();
         callState = 'idle';
@@ -646,7 +669,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Setup Guide Modal
-        setupBtn.addEventListener('click', () => setupModal.classList.add('active'));
+        const backendUrlInput = document.getElementById('backend-url-input');
+        const saveBackendUrlBtn = document.getElementById('save-backend-url-btn');
+
+        if (backendUrlInput) {
+            backendUrlInput.value = localStorage.getItem('call_easy_backend_url') || '';
+        }
+
+        if (saveBackendUrlBtn) {
+            saveBackendUrlBtn.addEventListener('click', () => {
+                const val = (backendUrlInput.value || '').trim();
+                localStorage.setItem('call_easy_backend_url', val);
+                showToast(val ? `Backend URL saved: ${val}` : 'Backend URL cleared');
+                setupModal.classList.remove('active');
+            });
+        }
+
+        setupBtn.addEventListener('click', () => {
+            if (backendUrlInput) {
+                backendUrlInput.value = localStorage.getItem('call_easy_backend_url') || '';
+            }
+            setupModal.classList.add('active');
+        });
         closeSetupBtn.addEventListener('click', () => setupModal.classList.remove('active'));
         closeSetupFooterBtn.addEventListener('click', () => setupModal.classList.remove('active'));
         setupModal.addEventListener('click', (e) => {

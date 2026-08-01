@@ -338,6 +338,15 @@
                 </div>
 
                 <div class="setup-body">
+                    <div class="setup-section" style="background: var(--primary-light); border-color: var(--primary-color);">
+                        <h4 style="color: var(--primary-color);">🔗 Backend Server URL (For Twilio Masked Calls)</h4>
+                        <p style="margin-bottom: 8px;">Enter your ngrok or deployed backend server URL to place anonymous calls from your mobile phone:</p>
+                        <div class="input-group">
+                            <input type="text" id="backend-url-input" placeholder="https://xxxx.ngrok-free.app or http://localhost:3000">
+                        </div>
+                        <button id="save-backend-url-btn" class="btn-primary" style="margin-top: 8px; padding: 8px 14px; font-size: 0.82rem;">Save Backend URL</button>
+                    </div>
+
                     <div class="setup-section">
                         <h4>1. Twilio Account SID & Auth Token</h4>
                         <p>Copy your Account SID & Auth Token from your <a href="https://console.twilio.com/" target="_blank">Twilio Console</a> into your <code>.env</code> file under <code>TWILIO_ACCOUNT_SID</code> and <code>TWILIO_AUTH_TOKEN</code>.</p>
@@ -376,6 +385,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=20260801_1425"></script>
+    <script src="app.js?v=20260801_1433"></script>
 </body>
 </html>
