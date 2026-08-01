@@ -1,0 +1,62 @@
+[
+  {
+    "id": "cand_001",
+    "name": "Ananya Sharma",
+    "role": "Senior Frontend Developer",
+    "phone": "+919876543211",
+    "email": "ananya.sharma@example.com",
+    "experience": "5 Yrs",
+    "location": "Bengaluru, IN",
+    "status": "contacted",
+    "notes": "Strong React & TypeScript experience. Available to start in 15 days.",
+    "lastContactedAt": "2026-08-01T08:24:45.483Z"
+  },
+  {
+    "id": "cand_002",
+    "name": "Rohan Verma",
+    "role": "Full Stack Engineer",
+    "phone": "+919876543212",
+    "email": "rohan.verma@example.com",
+    "experience": "4 Yrs",
+    "location": "Hyderabad, IN",
+    "status": "pending",
+    "notes": "Node.js, PostgreSQL & AWS expert. Interested in remote hybrid role.",
+    "lastContactedAt": null
+  },
+  {
+    "id": "cand_003",
+    "name": "Priya Nair",
+    "role": "Product Designer (UI/UX)",
+    "phone": "+919876543213",
+    "email": "priya.nair@example.com",
+    "experience": "6 Yrs",
+    "location": "Mumbai, IN",
+    "status": "pending",
+    "notes": "Figma design system lead. Portfolio reviewed and rated top 5%.",
+    "lastContactedAt": null
+  },
+  {
+    "id": "cand_004",
+    "name": "Karthik Raja",
+    "role": "Backend Lead (Java / Spring)",
+    "phone": "+919876543214",
+    "email": "karthik.raja@example.com",
+    "experience": "8 Yrs",
+    "location": "Chennai, IN",
+    "status": "pending",
+    "notes": "Microservices architecture specialist. Looking for Tech Lead track.",
+    "lastContactedAt": null
+  },
+  {
+    "id": "cand_005",
+    "name": "Sneha Gupta",
+    "role": "DevOps & Cloud Engineer",
+    "phone": "+919876543215",
+    "email": "sneha.gupta@example.com",
+    "experience": "3 Yrs",
+    "location": "Pune, IN",
+    "status": "pending",
+    "notes": "Kubernetes & Terraform certified. Quick learner, immediate joiner.",
+    "lastContactedAt": null
+  }
+]
