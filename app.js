@@ -16,9 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let templates = {
         company: 'Saveetha Admissions Cell',
-        whatsapp: 'Hi {name}, thank you for speaking with our Admissions team today regarding your application at {company}. Complete your online application here: https://admission.saveetha.com/ . Feel free to reply here if you have any questions!',
-        emailSubject: 'Official Admission Follow-up & Next Steps - {company}',
-        emailBody: 'Dear {name},\n\nThank you for speaking with the Admissions Cell team today regarding your higher education application at {company}.\n\nPlease complete your official online application form at your earliest convenience using the link below:\n\n👉 Application Portal: https://admission.saveetha.com/\n\nPlease let us know if you need any assistance or have any questions in the meantime.\n\nWarm regards,\nSaveetha Admissions Cell Team'
+        whatsapp: 'Dear {name}, thank you for speaking with the Saveetha Admissions Cell today regarding your admission. You can complete your official application form online here: https://admission.saveetha.com/ . Feel free to reply here if you have any questions!',
+        emailSubject: 'Official Admission Application Link & Next Steps - {name}',
+        emailBody: 'Dear {name},\n\nThank you for speaking with the Saveetha Admissions Cell today regarding your admission.\n\nYou can complete your official application form online using the link below:\nhttps://admission.saveetha.com/\n\nPlease let us know if you have any questions or require assistance in the meantime.\n\nBest regards,\nSaveetha Admissions Cell'
     };
 
     // ----------------------------------------------------
@@ -387,7 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (candidate.phone) {
             setTimeout(() => {
                 const cleanPhone = candidate.phone.replace(/[^0-9]/g, '');
-                const msg = encodeURIComponent(`Hi ${candidate.name}, thank you for speaking with us today regarding your application at ${templates.company}.`);
+                const msg = encodeURIComponent(`Dear ${candidate.name}, thank you for speaking with Saveetha Admissions Cell today. Complete your official application form online here: https://admission.saveetha.com/`);
                 window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
             }, 600);
         }
@@ -557,14 +557,14 @@ document.addEventListener('DOMContentLoaded', () => {
         manualWaBtn.addEventListener('click', () => {
             const candidate = candidates[currentIndex];
             const cleanPhone = (candidate.phone || '').replace(/[^0-9]/g, '');
-            const msg = encodeURIComponent(`Hi ${candidate.name}, following up regarding your application at ${templates.company}.`);
+            const msg = encodeURIComponent(`Dear ${candidate.name}, thank you for speaking with Saveetha Admissions Cell today. Complete your official application form online here: https://admission.saveetha.com/`);
             window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
         });
 
         manualEmailBtn.addEventListener('click', () => {
             const candidate = candidates[currentIndex];
-            const subject = encodeURIComponent(`Follow-up: ${templates.company}`);
-            const body = encodeURIComponent(`Hi ${candidate.name},\n\nThank you for connecting with our team today.\n\nBest regards,`);
+            const subject = encodeURIComponent(`Official Admission Application Link - ${candidate.name}`);
+            const body = encodeURIComponent(`Dear ${candidate.name},\n\nThank you for speaking with the Saveetha Admissions Cell today.\n\nYou can complete your official application form online using the link below:\nhttps://admission.saveetha.com/\n\nBest regards,\nSaveetha Admissions Cell`);
             window.location.href = `mailto:${candidate.email}?subject=${subject}&body=${body}`;
         });
 

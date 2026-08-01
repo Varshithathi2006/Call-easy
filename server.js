@@ -22,9 +22,9 @@ const TEMPLATES_FILE = path.join(__dirname, 'templates.json');
 // Default message templates
 const DEFAULT_TEMPLATES = {
   company: 'Saveetha Admissions Cell',
-  whatsapp: 'Hi {name}, thank you for speaking with our Admissions team today regarding your application at {company}. Complete your online application here: https://admission.saveetha.com/ . Feel free to reply here if you have any questions!',
-  emailSubject: 'Official Admission Follow-up & Next Steps - {company}',
-  emailBody: 'Dear {name},\n\nThank you for speaking with the Admissions Cell team today regarding your higher education application at {company}.\n\nPlease complete your official online application form at your earliest convenience using the link below:\n\n👉 Application Portal: https://admission.saveetha.com/\n\nPlease let us know if you need any assistance or have any questions in the meantime.\n\nWarm regards,\nSaveetha Admissions Cell Team'
+  whatsapp: 'Dear {name}, thank you for speaking with the Saveetha Admissions Cell today regarding your admission. You can complete your official application form online here: https://admission.saveetha.com/ . Feel free to reply here if you have any questions!',
+  emailSubject: 'Official Admission Application Link & Next Steps - {name}',
+  emailBody: 'Dear {name},\n\nThank you for speaking with the Saveetha Admissions Cell today regarding your admission.\n\nYou can complete your official application form online using the link below:\nhttps://admission.saveetha.com/\n\nPlease let us know if you have any questions or require assistance in the meantime.\n\nBest regards,\nSaveetha Admissions Cell'
 };
 
 // Helper to read candidates
