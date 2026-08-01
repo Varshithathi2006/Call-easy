@@ -99,7 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (savedTheme === 'dark' || savedTheme === 'light') {
             currentTheme = savedTheme;
         } else {
-            // Default to system preference
             const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             currentTheme = prefersDark ? 'dark' : 'light';
         }
@@ -126,7 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast(`Switched to ${nextTheme.toUpperCase()} theme`);
     }
 
-    // Listen to system theme changes if user hasn't explicitly set preference
     if (window.matchMedia) {
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
             if (!localStorage.getItem('call_easy_theme')) {
@@ -136,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ----------------------------------------------------
-    // INITIALIZATION & API FETCHING
+    // INITIALIZATION & CANDIDATE FETCHING (API + STATIC FALLBACK)
     // ----------------------------------------------------
     async function init() {
         initTheme();
@@ -156,31 +154,67 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('[Backend Online]', data);
             }
         } catch (err) {
-            console.warn('[Backend Offline / Standalone Mode]', err);
+            console.warn('[Backend Offline / GitHub Pages Static Mode]', err);
         }
     }
 
-    // Load candidate list from backend API
+    // Load candidate list from backend API, or fallback to static candidates.json for GitHub Pages
     async function loadCandidates() {
+        // 1. Try Express backend API
         try {
             const res = await fetch('/api/candidates');
             if (res.ok) {
                 const data = await res.json();
                 if (data.candidates && data.candidates.length > 0) {
                     candidates = data.candidates;
+                    syncWithLocalStorageStatus();
+                    console.log(`Loaded ${candidates.length} candidates from Express backend API`);
+                    return;
+                }
+            }
+        } catch (err) {}
+
+        // 2. Try fetching static candidates.json (works 100% on GitHub Pages static hosting!)
+        try {
+            const resStatic = await fetch('./candidates.json');
+            if (resStatic.ok) {
+                const staticData = await resStatic.json();
+                if (Array.isArray(staticData) && staticData.length > 0) {
+                    candidates = staticData;
+                    syncWithLocalStorageStatus();
+                    console.log(`Loaded ${candidates.length} candidates from static candidates.json`);
                     return;
                 }
             }
         } catch (err) {
-            console.warn('API fetch candidates failed, using local storage or fallback');
+            console.warn('Static fetch ./candidates.json failed', err);
         }
 
-        // Local Storage Fallback
+        // 3. Fallback to localStorage
         const saved = localStorage.getItem('call_easy_candidates');
         if (saved) {
             try {
                 candidates = JSON.parse(saved);
+                console.log(`Loaded ${candidates.length} candidates from localStorage`);
                 return;
+            } catch (e) {}
+        }
+    }
+
+    function syncWithLocalStorageStatus() {
+        const saved = localStorage.getItem('call_easy_candidates');
+        if (saved) {
+            try {
+                const savedList = JSON.parse(saved);
+                const statusMap = new Map();
+                savedList.forEach(c => {
+                    if (c.status) statusMap.set(c.id, c.status);
+                });
+                candidates.forEach(c => {
+                    if (statusMap.has(c.id)) {
+                        c.status = statusMap.get(c.id);
+                    }
+                });
             } catch (e) {}
         }
     }
@@ -267,8 +301,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderCallStateUI() {
         if (callState === 'calling') {
             callStatusBanner.classList.remove('hidden');
-            callBannerTitle.textContent = `Twilio Calling Your Phone...`;
-            callBannerSub.textContent = `Answer incoming call to bridge to ${candidates[currentIndex].name}`;
+            callBannerTitle.textContent = `Calling Candidate...`;
+            callBannerSub.textContent = `Tap "Mark Call Complete" when call finishes`;
             callActionBtn.classList.add('hidden');
             markCompleteBtn.classList.remove('hidden');
         } else {
@@ -286,8 +320,9 @@ document.addEventListener('DOMContentLoaded', () => {
         callState = 'calling';
         renderCallStateUI();
 
-        showToast(`Initiating Twilio call to ${candidate.name}...`);
+        showToast(`Calling ${candidate.name}...`);
 
+        // Try backend Twilio call API first
         try {
             const res = await fetch('/api/call', {
                 method: 'POST',
@@ -302,24 +337,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok) {
                 const data = await res.json();
                 if (data.mode === 'live_twilio') {
-                    showToast(`Calling your phone! Answer to connect to ${candidate.name}`);
-                } else {
-                    showToast(data.message || `Call initiated! Tap "Mark Call Complete" when done.`);
+                    showToast(`Twilio calling your phone! Answer to connect to ${candidate.name}`);
+                    return;
                 }
-            } else {
-                showToast(`Call initiated! Tap "Mark Call Complete" when finished.`);
             }
-        } catch (err) {
-            console.warn('[Call Request Fallback]', err);
-            showToast(`Simulated Call Started. Tap "Mark Call Complete" when done.`);
+        } catch (err) {}
+
+        // Fallback for static hosting (GitHub Pages) or when backend unavailable: trigger device dialer
+        if (candidate.phone) {
+            window.location.href = `tel:${candidate.phone.replace(/[^0-9+]/g, '')}`;
         }
+        showToast(`Dialer opened! Tap "Mark Call Complete" when finished.`);
     }
 
     async function handleMarkCallComplete() {
         const candidate = candidates[currentIndex];
 
-        showToast(`Sending WhatsApp & Email follow-up to ${candidate.name}...`);
-
+        // 1. Try backend auto-send endpoint if connected
         try {
             const res = await fetch('/api/complete-call', {
                 method: 'POST',
@@ -332,30 +366,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (res.ok) {
                 const data = await res.json();
-
                 candidate.status = 'contacted';
                 persistCandidates();
-
                 callState = 'idle';
                 renderCandidateCard();
-
-                let toastMsg = `✓ Call Complete! Follow-up sent to ${candidate.name}`;
-                if (data.emailResult && data.emailResult.sent) {
-                    toastMsg += ` (Email delivered)`;
-                }
-                showToast(toastMsg);
+                showToast(`✓ Call Complete! Follow-up sent to ${candidate.name}`);
                 return;
             }
-        } catch (err) {
-            console.warn('[Complete Call Fallback]', err);
-        }
+        } catch (err) {}
 
-        // Local fallback update if server unreachable
+        // 2. Static GitHub Pages Fallback: update status & offer 1-tap WhatsApp follow-up
         candidate.status = 'contacted';
         persistCandidates();
         callState = 'idle';
         renderCandidateCard();
-        showToast(`✓ Marked Call Complete for ${candidate.name}`);
+
+        showToast(`✓ Call Complete! ${candidate.name} marked Contacted.`);
+
+        // Trigger WhatsApp follow-up link for static mode
+        if (candidate.phone) {
+            setTimeout(() => {
+                const cleanPhone = candidate.phone.replace(/[^0-9]/g, '');
+                const msg = encodeURIComponent(`Hi ${candidate.name}, thank you for speaking with us today regarding your application at ${templates.company}.`);
+                window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
+            }, 600);
+        }
     }
 
     async function toggleContactedStatus() {
@@ -522,13 +557,13 @@ document.addEventListener('DOMContentLoaded', () => {
         manualWaBtn.addEventListener('click', () => {
             const candidate = candidates[currentIndex];
             const cleanPhone = (candidate.phone || '').replace(/[^0-9]/g, '');
-            const msg = encodeURIComponent(`Hi ${candidate.name}, following up regarding your application.`);
+            const msg = encodeURIComponent(`Hi ${candidate.name}, following up regarding your application at ${templates.company}.`);
             window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
         });
 
         manualEmailBtn.addEventListener('click', () => {
             const candidate = candidates[currentIndex];
-            const subject = encodeURIComponent(`Follow-up regarding your application`);
+            const subject = encodeURIComponent(`Follow-up: ${templates.company}`);
             const body = encodeURIComponent(`Hi ${candidate.name},\n\nThank you for connecting with our team today.\n\nBest regards,`);
             window.location.href = `mailto:${candidate.email}?subject=${subject}&body=${body}`;
         });
