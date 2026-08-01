@@ -1,6 +1,6 @@
 /**
- * Call Easy - Twilio Anonymous Candidate Outreach
- * Frontend Application Logic
+ * Call Easy - Anonymous Candidate Outreach
+ * Frontend Application & Theme Management
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,12 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentFilter = 'all';
     let searchQuery = '';
     let callState = 'idle'; // 'idle' | 'calling' | 'completed'
+    let currentTheme = 'light';
 
     let templates = {
         company: 'Acme Corp Hiring Team',
-        whatsapp: 'Hi {name}, thank you for taking the time to speak with us today regarding the {role} position at {company}. Next step: {next_step}. Feel free to reply here if you have any questions!',
-        emailSubject: 'Follow-up regarding your {role} application - {company}',
-        emailBody: 'Hi {name},\n\nThank you for speaking with our recruiting team today regarding the {role} position at {company}.\n\nAs discussed, our key next step is: {next_step}.\n\nPlease let us know if you need any additional details or have any questions in the meantime.\n\nBest regards,\n{company} Recruitment Team'
+        whatsapp: 'Hi {name}, thank you for taking the time to speak with us today regarding your application at {company}. Feel free to reply here if you have any questions!',
+        emailSubject: 'Follow-up regarding your application - {company}',
+        emailBody: 'Hi {name},\n\nThank you for speaking with our recruiting team today at {company}.\n\nPlease let us know if you need any additional details or have any questions in the meantime.\n\nBest regards,\n{company} Recruitment Team'
     };
 
     // ----------------------------------------------------
@@ -27,26 +28,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleSimulatorBtn = document.getElementById('toggle-simulator-btn');
     const appShell = document.getElementById('app-shell');
 
-    // Header & Progress
+    // Header & Theme Controls
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const themeIconSun = document.getElementById('theme-icon-sun');
+    const themeIconMoon = document.getElementById('theme-icon-moon');
     const setupBtn = document.getElementById('setup-btn');
     const templatesBtn = document.getElementById('templates-btn');
     const listDrawerBtn = document.getElementById('list-drawer-btn');
     const headerProgressCount = document.getElementById('header-progress-count');
     const progressBarFill = document.getElementById('progress-bar-fill');
 
-    // Candidate Card Elements
+    // Candidate Card Elements (ONLY Name, Phone, Email)
     const candidateIndexLabel = document.getElementById('candidate-index-label');
     const candidateStatusBadge = document.getElementById('candidate-status-badge');
     const statusText = document.getElementById('status-text');
     const candidateAvatar = document.getElementById('candidate-avatar');
     const contactedCheckmark = document.getElementById('contacted-checkmark');
     const candidateName = document.getElementById('candidate-name');
-    const candidateRole = document.getElementById('candidate-role');
-    const candidateExp = document.getElementById('candidate-exp');
-    const candidateLocation = document.getElementById('candidate-location');
+    const phoneLink = document.getElementById('phone-link');
     const candidatePhone = document.getElementById('candidate-phone');
+    const emailLink = document.getElementById('email-link');
     const candidateEmail = document.getElementById('candidate-email');
-    const candidateNotes = document.getElementById('candidate-notes');
 
     // Call Action Footer Controls
     const callStatusBanner = document.getElementById('call-status-banner');
@@ -90,9 +92,54 @@ document.addEventListener('DOMContentLoaded', () => {
     const toastMessage = document.getElementById('toast-message');
 
     // ----------------------------------------------------
+    // THEME MANAGEMENT ENGINE
+    // ----------------------------------------------------
+    function initTheme() {
+        const savedTheme = localStorage.getItem('call_easy_theme');
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+            currentTheme = savedTheme;
+        } else {
+            // Default to system preference
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            currentTheme = prefersDark ? 'dark' : 'light';
+        }
+        applyTheme(currentTheme);
+    }
+
+    function applyTheme(theme) {
+        currentTheme = theme;
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('call_easy_theme', theme);
+
+        if (theme === 'dark') {
+            themeIconSun.classList.remove('hidden');
+            themeIconMoon.classList.add('hidden');
+        } else {
+            themeIconSun.classList.add('hidden');
+            themeIconMoon.classList.remove('hidden');
+        }
+    }
+
+    function toggleTheme() {
+        const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        applyTheme(nextTheme);
+        showToast(`Switched to ${nextTheme.toUpperCase()} theme`);
+    }
+
+    // Listen to system theme changes if user hasn't explicitly set preference
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('call_easy_theme')) {
+                applyTheme(e.matches ? 'dark' : 'light');
+            }
+        });
+    }
+
+    // ----------------------------------------------------
     // INITIALIZATION & API FETCHING
     // ----------------------------------------------------
     async function init() {
+        initTheme();
         await checkBackendHealth();
         await loadCandidates();
         await loadTemplates();
@@ -113,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Load candidate list from backend API (or fallback to local seed)
+    // Load candidate list from backend API
     async function loadCandidates() {
         try {
             const res = await fetch('/api/candidates');
@@ -125,10 +172,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } catch (err) {
-            console.warn('API fetch candidates failed, using local storage or seed data');
+            console.warn('API fetch candidates failed, using local storage or fallback');
         }
 
-        // Local Storage / Seed Fallback
+        // Local Storage Fallback
         const saved = localStorage.getItem('call_easy_candidates');
         if (saved) {
             try {
@@ -136,45 +183,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             } catch (e) {}
         }
-
-        candidates = [
-            {
-                id: 'cand_001',
-                name: 'Ananya Sharma',
-                role: 'Senior Frontend Developer',
-                phone: '+919876543211',
-                email: 'ananya.sharma@example.com',
-                experience: '5 Yrs',
-                location: 'Bengaluru, IN',
-                status: 'pending',
-                notes: 'Strong React & TypeScript experience. Available to start in 15 days.'
-            },
-            {
-                id: 'cand_002',
-                name: 'Rohan Verma',
-                role: 'Full Stack Engineer',
-                phone: '+919876543212',
-                email: 'rohan.verma@example.com',
-                experience: '4 Yrs',
-                location: 'Hyderabad, IN',
-                status: 'pending',
-                notes: 'Node.js, PostgreSQL & AWS expert. Interested in remote hybrid role.'
-            },
-            {
-                id: 'cand_003',
-                name: 'Priya Nair',
-                role: 'Product Designer (UI/UX)',
-                phone: '+919876543213',
-                email: 'priya.nair@example.com',
-                experience: '6 Yrs',
-                location: 'Mumbai, IN',
-                status: 'pending',
-                notes: 'Figma design system lead. Portfolio reviewed and rated top 5%.'
-            }
-        ];
     }
 
-    // Save candidate state
+    // Save candidate state locally
     function persistCandidates() {
         localStorage.setItem('call_easy_candidates', JSON.stringify(candidates));
     }
@@ -201,14 +212,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ----------------------------------------------------
-    // RENDERING LOGIC
+    // RENDERING LOGIC (Display Name, Phone, Email ONLY)
     // ----------------------------------------------------
     function renderCandidateCard() {
         if (!candidates || candidates.length === 0) return;
 
         const candidate = candidates[currentIndex];
 
-        // Header counts
+        // Header counts & Progress bar
         const contactedCount = candidates.filter(c => c.status === 'contacted').length;
         headerProgressCount.textContent = `${contactedCount}/${candidates.length}`;
         const pct = Math.round((contactedCount / candidates.length) * 100);
@@ -229,17 +240,19 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleContactedText.textContent = 'Mark Done';
         }
 
-        // Profile fields
-        const initials = candidate.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        // Candidate Avatar & Name
+        const initials = candidate.name
+            ? candidate.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+            : 'C';
         candidateAvatar.textContent = initials;
         candidateName.textContent = candidate.name;
-        candidateRole.textContent = candidate.role;
-        candidateExp.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${candidate.experience || '-- Yrs Exp'}`;
-        candidateLocation.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${candidate.location || 'Remote'}`;
 
-        candidatePhone.textContent = candidate.phone;
-        candidateEmail.textContent = candidate.email;
-        candidateNotes.textContent = candidate.notes || 'Initial recruiter screening call.';
+        // Candidate Phone & Email
+        candidatePhone.textContent = candidate.phone || 'No phone provided';
+        phoneLink.href = candidate.phone ? `tel:${candidate.phone.replace(/[^0-9+]/g, '')}` : '#';
+
+        candidateEmail.textContent = candidate.email || 'No email provided';
+        emailLink.href = candidate.email ? `mailto:${candidate.email}` : '#';
 
         // Navigation state
         prevCandidateBtn.disabled = currentIndex === 0;
@@ -247,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
         prevCandidateBtn.style.opacity = currentIndex === 0 ? '0.5' : '1';
         nextCandidateBtn.style.opacity = currentIndex === candidates.length - 1 ? '0.5' : '1';
 
-        // Render call state UI
+        // Render active call UI state
         renderCallStateUI();
     }
 
@@ -268,8 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ----------------------------------------------------
     // TWILIO OUTBOUND CALL & MARK COMPLETE ACTIONS
     // ----------------------------------------------------
-
-    // 1. Trigger Twilio Outbound Call Bridge
     async function handleCallCandidate() {
         const candidate = candidates[currentIndex];
         callState = 'calling';
@@ -290,8 +301,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (res.ok) {
                 const data = await res.json();
-                console.log('[Twilio Call Response]', data);
-
                 if (data.mode === 'live_twilio') {
                     showToast(`Calling your phone! Answer to connect to ${candidate.name}`);
                 } else {
@@ -306,7 +315,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 2. Mark Call Complete Action (Auto Sends WhatsApp & Email Follow-up)
     async function handleMarkCallComplete() {
         const candidate = candidates[currentIndex];
 
@@ -318,14 +326,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     candidateId: candidate.id,
-                    companyName: templates.company,
-                    customNote: candidate.notes
+                    companyName: templates.company
                 })
             });
 
             if (res.ok) {
                 const data = await res.json();
-                console.log('[Complete Call Response]', data);
 
                 candidate.status = 'contacted';
                 persistCandidates();
@@ -352,7 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast(`✓ Marked Call Complete for ${candidate.name}`);
     }
 
-    // Toggle status manually
     async function toggleContactedStatus() {
         const candidate = candidates[currentIndex];
         const newStatus = candidate.status === 'contacted' ? 'pending' : 'contacted';
@@ -389,14 +394,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateTemplatePreview() {
-        const currentCandidate = candidates[currentIndex] || { name: 'Sample Name', role: 'Developer' };
+        const currentCandidate = candidates[currentIndex] || { name: 'Sample Candidate' };
 
         const render = (str) => {
             return (str || '')
                 .replace(/\{name\}/g, currentCandidate.name)
-                .replace(/\{role\}/g, currentCandidate.role)
-                .replace(/\{company\}/g, templateCompany.value || 'Acme Corp')
-                .replace(/\{next_step\}/g, currentCandidate.notes || 'Interview round');
+                .replace(/\{company\}/g, templateCompany.value || 'Acme Corp');
         };
 
         previewWhatsappText.textContent = render(templateWhatsapp.value);
@@ -449,8 +452,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const filtered = candidates.filter(candidate => {
             const matchesFilter = currentFilter === 'all' || candidate.status === currentFilter;
             const matchesSearch = !searchQuery || 
-                candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                candidate.role.toLowerCase().includes(searchQuery.toLowerCase());
+                (candidate.name && candidate.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                (candidate.phone && candidate.phone.includes(searchQuery)) ||
+                (candidate.email && candidate.email.toLowerCase().includes(searchQuery.toLowerCase()));
             return matchesFilter && matchesSearch;
         });
 
@@ -461,7 +465,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        filtered.forEach((candidate) => {
+        // Render first 100 matching items for high performance rendering
+        const displaySlice = filtered.slice(0, 100);
+
+        displaySlice.forEach((candidate) => {
             const indexInMainList = candidates.findIndex(c => c.id === candidate.id);
             const isCurrent = indexInMainList === currentIndex;
 
@@ -470,7 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
             item.innerHTML = `
                 <div>
                     <strong style="font-size:0.92rem; display:block; color:var(--text-primary);">${candidate.name}</strong>
-                    <span style="font-size:0.8rem; color:var(--text-secondary);">${candidate.role}</span>
+                    <span style="font-size:0.78rem; color:var(--text-secondary);">${candidate.phone || candidate.email}</span>
                 </div>
                 <span class="status-badge ${candidate.status === 'contacted' ? 'status-contacted' : 'status-pending'}">
                     ${candidate.status === 'contacted' ? '✓ Done' : 'Pending'}
@@ -498,6 +505,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function setupEventListeners() {
+        // Theme Switcher Toggle
+        themeToggleBtn.addEventListener('click', toggleTheme);
+
         // Desktop Simulator toggle
         toggleSimulatorBtn.addEventListener('click', () => {
             desktopOverlay.style.display = 'none';
@@ -511,14 +521,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Sub Actions (Direct manual triggers)
         manualWaBtn.addEventListener('click', () => {
             const candidate = candidates[currentIndex];
-            const cleanPhone = candidate.phone.replace(/[^0-9]/g, '');
-            const msg = encodeURIComponent(`Hi ${candidate.name}, following up regarding the ${candidate.role} position.`);
+            const cleanPhone = (candidate.phone || '').replace(/[^0-9]/g, '');
+            const msg = encodeURIComponent(`Hi ${candidate.name}, following up regarding your application.`);
             window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
         });
 
         manualEmailBtn.addEventListener('click', () => {
             const candidate = candidates[currentIndex];
-            const subject = encodeURIComponent(`Follow-up: ${candidate.role} position`);
+            const subject = encodeURIComponent(`Follow-up regarding your application`);
             const body = encodeURIComponent(`Hi ${candidate.name},\n\nThank you for connecting with our team today.\n\nBest regards,`);
             window.location.href = `mailto:${candidate.email}?subject=${subject}&body=${body}`;
         });
@@ -542,14 +552,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Drawer
+        // Drawer Controls
         listDrawerBtn.addEventListener('click', openListDrawer);
         closeDrawerBtn.addEventListener('click', closeListDrawer);
         listDrawer.addEventListener('click', (e) => {
             if (e.target === listDrawer) closeListDrawer();
         });
 
-        // Search & Filter
+        // Search & Filter Inputs
         candidateSearchInput.addEventListener('input', (e) => {
             searchQuery = e.target.value;
             renderDrawerCandidatesList();

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>Call Easy - Anonymous Twilio Candidate Outreach</title>
+    <title>Call Easy - Anonymous Candidate Outreach</title>
     <meta name="description" content="Mobile app for candidate phone calls with hidden personal caller ID using Twilio Voice API, with automated WhatsApp and Email follow-ups.">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,21 +14,22 @@
 </head>
 <body>
 
-    <!-- Desktop Notice Overlay (Visible on large screens unless simulator is active) -->
+    <!-- Desktop Notice Overlay -->
     <div id="desktop-overlay" class="desktop-overlay">
         <div class="desktop-card">
             <div class="desktop-icon-wrap">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
                     <line x1="12" y1="18" x2="12.01" y2="18"/>
                 </svg>
             </div>
             <h2>Mobile Experience</h2>
-            <p><strong>Call Easy</strong> is built for mobile screens so recruiters can make anonymous candidate calls on the go.</p>
+            <p><strong>Call Easy</strong> is designed for mobile screens so recruiters can make anonymous candidate calls on the go.</p>
             <div class="desktop-features">
                 <span>🔒 Twilio Number Masking (Personal ID Hidden)</span>
                 <span>⚡ 1-Tap Bridge Calling</span>
                 <span>✉️ Auto WhatsApp & Email Follow-up</span>
+                <span>🌙 Dark / Light Mode Support</span>
             </div>
             <button id="toggle-simulator-btn" class="btn-primary desktop-btn">
                 Launch Mobile Phone Simulator
@@ -36,7 +37,7 @@
         </div>
     </div>
 
-    <!-- Main Mobile Shell -->
+    <!-- Main Mobile Shell Container -->
     <div id="app-shell" class="app-shell">
         <!-- App Header -->
         <header class="app-header">
@@ -48,11 +49,32 @@
                 </div>
                 <div>
                     <h1>Call Easy</h1>
-                    <span class="sub-title">Twilio Anonymous Outreach</span>
+                    <span class="sub-title">Anonymous Outreach</span>
                 </div>
             </div>
 
             <div class="header-actions">
+                <!-- Theme Switcher Toggle Button (Sun/Moon) -->
+                <button id="theme-toggle-btn" class="icon-btn" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
+                    <!-- Sun Icon (shown in dark mode) -->
+                    <svg id="theme-icon-sun" class="theme-icon hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/>
+                        <line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/>
+                        <line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                    <!-- Moon Icon (shown in light mode) -->
+                    <svg id="theme-icon-moon" class="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+
+                <!-- Twilio Setup Guide Button -->
                 <button id="setup-btn" class="icon-btn" title="Twilio Setup Guide" aria-label="Setup Guide">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"/>
@@ -61,6 +83,7 @@
                     </svg>
                 </button>
 
+                <!-- Edit Templates Button -->
                 <button id="templates-btn" class="icon-btn" title="Edit Templates" aria-label="Edit Templates">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 20h9"/>
@@ -68,6 +91,7 @@
                     </svg>
                 </button>
 
+                <!-- Queue List Drawer Button -->
                 <button id="list-drawer-btn" class="icon-btn pill-btn" title="View Queue" aria-label="View Queue">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="8" y1="6" x2="21" y2="6"/>
@@ -95,7 +119,7 @@
             <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
         </div>
 
-        <!-- Candidate Card Viewport -->
+        <!-- Candidate Card Viewport (Displays ONLY Name, Phone, Email) -->
         <main class="card-viewport">
             <div id="candidate-card" class="candidate-card">
                 <!-- Status Bar -->
@@ -107,7 +131,7 @@
                     </span>
                 </div>
 
-                <!-- Candidate Profile Details -->
+                <!-- Candidate Profile (ONLY Name shown in profile section) -->
                 <div class="candidate-profile">
                     <div class="avatar-wrap">
                         <div id="candidate-avatar" class="avatar-initials">--</div>
@@ -118,36 +142,24 @@
                         </div>
                     </div>
                     <h2 id="candidate-name" class="candidate-name">Loading Candidate...</h2>
-                    <p id="candidate-role" class="candidate-role">Job Role</p>
-                    
-                    <div class="metadata-tags">
-                        <span id="candidate-exp" class="tag">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 
-                            -- Yrs Exp
-                        </span>
-                        <span id="candidate-location" class="tag">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 
-                            Location
-                        </span>
-                    </div>
                 </div>
 
-                <!-- Contact Information Details -->
+                <!-- Contact Information Details (Phone Number & Email Address ONLY) -->
                 <div class="contact-details-box">
-                    <div class="contact-row">
+                    <a id="phone-link" href="#" class="contact-row">
                         <div class="icon-circle phone-icon-bg">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                             </svg>
                         </div>
                         <div class="contact-info">
-                            <span class="info-label">Candidate Phone</span>
+                            <span class="info-label">Phone Number</span>
                             <span id="candidate-phone" class="info-value">+1 (555) 000-0000</span>
                         </div>
                         <span class="tap-hint masked-hint">Twilio Masked</span>
-                    </div>
+                    </a>
 
-                    <div class="contact-row">
+                    <a id="email-link" href="#" class="contact-row">
                         <div class="icon-circle email-icon-bg">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
@@ -155,27 +167,18 @@
                             </svg>
                         </div>
                         <div class="contact-info">
-                            <span class="info-label">Candidate Email</span>
+                            <span class="info-label">Email Address</span>
                             <span id="candidate-email" class="info-value">candidate@example.com</span>
                         </div>
                         <span class="tap-hint">Auto Email</span>
-                    </div>
-                </div>
-
-                <!-- Notes / Next Steps Snippet -->
-                <div class="notes-box">
-                    <div class="notes-header">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                        <span>Key Candidate Note / Next Step:</span>
-                    </div>
-                    <p id="candidate-notes" class="notes-content">Screening scheduled.</p>
+                    </a>
                 </div>
             </div>
         </main>
 
         <!-- Dynamic Action Footer Zone -->
         <footer class="action-footer">
-            <!-- Active Call Banner (Shown during active call state) -->
+            <!-- Active Call Banner -->
             <div id="call-status-banner" class="call-status-banner hidden">
                 <div class="pulse-ring"></div>
                 <div class="call-banner-text">
@@ -184,7 +187,7 @@
                 </div>
             </div>
 
-            <!-- Action State 1: Primary Call Button -->
+            <!-- Primary Call Button -->
             <button id="call-action-btn" class="big-btn call-btn">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
@@ -192,7 +195,7 @@
                 <span>CALL CANDIDATE (TWILIO MASKED)</span>
             </button>
 
-            <!-- Action State 2: Mark Call Complete Button -->
+            <!-- Mark Call Complete Button -->
             <button id="mark-complete-btn" class="big-btn complete-btn hidden">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <polyline points="20 6 9 17 4 12"/>
@@ -256,7 +259,7 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                         </svg>
-                        <input type="text" id="candidate-search-input" placeholder="Search candidate or role...">
+                        <input type="text" id="candidate-search-input" placeholder="Search by name, phone or email...">
                     </div>
                     <div class="filter-pills">
                         <button class="filter-pill active" data-filter="all">All (<span id="count-filter-all">0</span>)</button>
@@ -283,7 +286,7 @@
 
                 <div class="template-editor-body">
                     <p class="template-help-text">
-                        Dynamic tags: <code>{name}</code>, <code>{role}</code>, <code>{company}</code>, <code>{next_step}</code>
+                        Dynamic tags: <code>{name}</code>, <code>{company}</code>
                     </p>
 
                     <div class="input-group">
@@ -337,8 +340,7 @@
                 <div class="setup-body">
                     <div class="setup-section">
                         <h4>1. Twilio Account SID & Auth Token</h4>
-                        <p>Your Account SID: <code>your_twilio_account_sid_here</code></p>
-                        <p>Copy your Auth Token from your <a href="https://console.twilio.com/" target="_blank">Twilio Console</a> into your <code>.env</code> file under <code>TWILIO_AUTH_TOKEN</code>.</p>
+                        <p>Copy your Account SID & Auth Token from your <a href="https://console.twilio.com/" target="_blank">Twilio Console</a> into your <code>.env</code> file under <code>TWILIO_ACCOUNT_SID</code> and <code>TWILIO_AUTH_TOKEN</code>.</p>
                     </div>
 
                     <div class="setup-section">
@@ -374,6 +376,6 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=20260801_1400"></script>
 </body>
 </html>

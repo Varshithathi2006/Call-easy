@@ -1,20 +1,37 @@
-:root {
+/* CSS Custom Properties & Themes */
+:root, [data-theme="light"] {
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-overlay: rgba(15, 23, 42, 0.6);
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --border-dashed: #cbd5e1;
+    
     --primary-color: #2563eb;
     --primary-dark: #1d4ed8;
     --primary-light: #eff6ff;
+    
     --success-color: #10b981;
     --success-dark: #059669;
     --success-light: #ecfdf5;
+    
     --warning-color: #f59e0b;
     --warning-light: #fffbe6;
+    
     --danger-color: #ef4444;
     --danger-light: #fef2f2;
-    --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --text-muted: #94a3b8;
-    --bg-main: #f8fafc;
-    --bg-card: #ffffff;
-    --border-color: #e2e8f0;
+    
+    --banner-bg: #1e293b;
+    --banner-text: #38bdf8;
+    
+    --phone-bg: #dbeafe;
+    --phone-color: #1d4ed8;
+    
+    --email-bg: #fef3c7;
+    --email-color: #d97706;
+
     --radius-sm: 8px;
     --radius-md: 14px;
     --radius-lg: 20px;
@@ -23,6 +40,40 @@
     --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
     --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1);
     --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+[data-theme="dark"] {
+    --bg-main: #0f172a;
+    --bg-card: #1e293b;
+    --bg-overlay: rgba(0, 0, 0, 0.75);
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --border-dashed: #475569;
+    
+    --primary-color: #38bdf8;
+    --primary-dark: #0284c7;
+    --primary-light: #1e3a8a;
+    
+    --success-color: #34d399;
+    --success-dark: #10b981;
+    --success-light: #064e3b;
+    
+    --warning-color: #fbbf24;
+    --warning-light: #451a03;
+    
+    --danger-color: #f87171;
+    --danger-light: #7f1d1d;
+    
+    --banner-bg: #0f172a;
+    --banner-text: #38bdf8;
+    
+    --phone-bg: #1e3a8a;
+    --phone-color: #60a5fa;
+    
+    --email-bg: #78350f;
+    --email-color: #fcd34d;
 }
 
 * {
@@ -34,20 +85,21 @@
 
 body {
     font-family: var(--font-family);
-    background-color: #0f172a;
+    background-color: var(--bg-main);
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .hidden {
     display: none !important;
 }
 
-/* Desktop Notice & Simulator Frame */
+/* Desktop Notice Overlay */
 .desktop-overlay {
     position: fixed;
     top: 0;
@@ -64,12 +116,13 @@ body {
 }
 
 .desktop-card {
-    background: #ffffff;
+    background: var(--bg-card);
     max-width: 440px;
     padding: 32px;
     border-radius: var(--radius-lg);
     text-align: center;
     box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
 }
 
 .desktop-icon-wrap {
@@ -110,6 +163,7 @@ body {
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--text-primary);
+    border: 1px solid var(--border-color);
 }
 
 .desktop-btn {
@@ -119,7 +173,7 @@ body {
     font-weight: 700;
 }
 
-/* Mobile App Container Shell */
+/* Mobile App Shell Container */
 .app-shell {
     width: 100%;
     max-width: 430px;
@@ -131,6 +185,7 @@ body {
     position: relative;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     overflow: hidden;
+    transition: background-color 0.3s ease;
 }
 
 @media (min-width: 769px) {
@@ -154,13 +209,14 @@ body {
 
 /* Header */
 .app-header {
-    background-color: #ffffff;
+    background-color: var(--bg-card);
     padding: 16px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--border-color);
     z-index: 10;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .brand {
@@ -206,7 +262,7 @@ body {
     height: 40px;
     border-radius: 50%;
     border: 1px solid var(--border-color);
-    background: #ffffff;
+    background: var(--bg-card);
     color: var(--text-secondary);
     display: flex;
     align-items: center;
@@ -239,8 +295,8 @@ body {
 
 /* Privacy Banner */
 .privacy-banner {
-    background: #1e293b;
-    color: #38bdf8;
+    background: var(--banner-bg);
+    color: var(--banner-text);
     padding: 8px 16px;
     font-size: 0.78rem;
     font-weight: 700;
@@ -255,7 +311,7 @@ body {
 .progress-bar-container {
     height: 4px;
     width: 100%;
-    background-color: #e2e8f0;
+    background-color: var(--border-color);
 }
 
 .progress-bar-fill {
@@ -267,21 +323,23 @@ body {
 /* Main Viewport & Card */
 .card-viewport {
     flex: 1;
-    padding: 16px;
+    padding: 20px 16px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    justify-content: center;
 }
 
 .candidate-card {
-    background: #ffffff;
+    background: var(--bg-card);
     border-radius: var(--radius-lg);
-    padding: 20px;
+    padding: 24px 20px;
     box-shadow: var(--shadow-md);
     border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .card-top-bar {
@@ -291,10 +349,11 @@ body {
 }
 
 .candidate-index {
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-size: 0.82rem;
+    font-weight: 800;
     color: var(--text-muted);
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .status-badge {
@@ -314,7 +373,7 @@ body {
 
 .status-contacted {
     background: var(--success-light);
-    color: var(--success-dark);
+    color: var(--success-color);
 }
 
 .status-dot {
@@ -326,13 +385,14 @@ body {
 
 .candidate-profile {
     text-align: center;
+    padding: 8px 0;
 }
 
 .avatar-wrap {
     position: relative;
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 12px auto;
+    width: 88px;
+    height: 88px;
+    margin: 0 auto 16px auto;
 }
 
 .avatar-initials {
@@ -340,7 +400,7 @@ body {
     height: 100%;
     background: linear-gradient(135deg, #3b82f6, #1d4ed8);
     color: #ffffff;
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 800;
     border-radius: 50%;
     display: flex;
@@ -355,10 +415,10 @@ body {
     right: -2px;
     background: var(--success-color);
     color: #ffffff;
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    border: 3px solid #ffffff;
+    border: 3px solid var(--bg-card);
     display: none;
     align-items: center;
     justify-content: center;
@@ -369,60 +429,35 @@ body {
 }
 
 .candidate-name {
-    font-size: 1.35rem;
+    font-size: 1.5rem;
     font-weight: 800;
     color: var(--text-primary);
-    margin-bottom: 4px;
+    line-height: 1.25;
 }
 
-.candidate-role {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin-bottom: 12px;
-}
-
-.metadata-tags {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.tag {
-    background: var(--bg-main);
-    color: var(--text-secondary);
-    padding: 6px 12px;
-    border-radius: var(--radius-md);
-    font-size: 0.8rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-/* Contact Box */
+/* Contact Details Rows (Phone Number & Email Address ONLY) */
 .contact-details-box {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
 .contact-row {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px;
+    gap: 14px;
+    padding: 14px;
     background: var(--bg-main);
     border-radius: var(--radius-md);
     text-decoration: none;
     color: inherit;
     border: 1px solid var(--border-color);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .icon-circle {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -431,90 +466,71 @@ body {
 }
 
 .phone-icon-bg {
-    background: #dbeafe;
-    color: #1d4ed8;
+    background: var(--phone-bg);
+    color: var(--phone-color);
 }
 
 .email-icon-bg {
-    background: #fef3c7;
-    color: #d97706;
+    background: var(--email-bg);
+    color: var(--email-color);
 }
 
 .contact-info {
     flex: 1;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .info-label {
     font-size: 0.72rem;
     color: var(--text-muted);
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .info-value {
-    font-size: 0.92rem;
-    font-weight: 700;
+    font-size: 0.95rem;
+    font-weight: 800;
     color: var(--text-primary);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .tap-hint {
     font-size: 0.75rem;
     font-weight: 700;
     color: var(--primary-color);
-    background: #ffffff;
+    background: var(--bg-card);
     padding: 4px 8px;
     border-radius: 6px;
     border: 1px solid var(--border-color);
 }
 
 .masked-hint {
-    color: #0284c7;
-    background: #e0f2fe;
-    border-color: #bae6fd;
-}
-
-/* Notes Box */
-.notes-box {
-    background: #fafafa;
-    border: 1px dashed #cbd5e1;
-    padding: 12px;
-    border-radius: var(--radius-md);
-}
-
-.notes-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    margin-bottom: 6px;
-}
-
-.notes-content {
-    font-size: 0.88rem;
-    color: var(--text-secondary);
-    line-height: 1.4;
+    color: var(--primary-color);
+    background: var(--primary-light);
+    border-color: var(--primary-color);
 }
 
 /* Action Footer Zone */
 .action-footer {
-    background: #ffffff;
+    background: var(--bg-card);
     padding: 14px 16px 20px 16px;
     border-top: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     gap: 12px;
     box-shadow: 0 -4px 15px rgba(0,0,0,0.03);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 /* Active Calling Banner */
 .call-status-banner {
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
+    background: var(--primary-light);
+    border: 1px solid var(--primary-color);
     padding: 10px 14px;
     border-radius: var(--radius-md);
     display: flex;
@@ -525,15 +541,15 @@ body {
 .pulse-ring {
     width: 14px;
     height: 14px;
-    background-color: #2563eb;
+    background-color: var(--primary-color);
     border-radius: 50%;
     animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(56, 189, 248, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
 }
 
 .call-banner-text {
@@ -543,12 +559,12 @@ body {
 
 .call-banner-text strong {
     font-size: 0.85rem;
-    color: #1e40af;
+    color: var(--primary-color);
 }
 
 .call-banner-text span {
     font-size: 0.75rem;
-    color: #3b82f6;
+    color: var(--text-secondary);
 }
 
 /* Big Action Buttons */
@@ -608,19 +624,19 @@ body {
 }
 
 .wa-sub-btn {
-    color: #059669;
-    background: #ecfdf5;
-    border-color: #a7f3d0;
+    color: var(--success-color);
+    background: var(--success-light);
+    border-color: var(--success-color);
 }
 
 .email-sub-btn {
     color: #d97706;
-    background: #fffbe6;
-    border-color: #fde68a;
+    background: var(--email-bg);
+    border-color: var(--email-color);
 }
 
 .mark-sub-btn {
-    color: #475569;
+    color: var(--text-secondary);
 }
 
 /* Queue Navigation */
@@ -634,7 +650,7 @@ body {
     padding: 12px;
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
-    background: #ffffff;
+    background: var(--bg-card);
     font-size: 0.88rem;
     font-weight: 700;
     color: var(--text-secondary);
@@ -648,7 +664,7 @@ body {
 .next-primary-btn {
     background: var(--primary-light);
     color: var(--primary-color);
-    border-color: #bfdbfe;
+    border-color: var(--primary-color);
 }
 
 /* Modals & Drawers */
@@ -658,7 +674,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(15, 23, 42, 0.6);
+    background: var(--bg-overlay);
     backdrop-filter: blur(4px);
     z-index: 100;
     display: flex;
@@ -675,7 +691,7 @@ body {
 }
 
 .drawer-content {
-    background: #ffffff;
+    background: var(--bg-card);
     border-top-left-radius: 24px;
     border-top-right-radius: 24px;
     max-height: 88%;
@@ -683,7 +699,8 @@ body {
     flex-direction: column;
     transform: translateY(100%);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.25);
+    border-top: 1px solid var(--border-color);
 }
 
 .drawer-overlay.active .drawer-content {
@@ -701,6 +718,7 @@ body {
 .drawer-header h3 {
     font-size: 1.1rem;
     font-weight: 800;
+    color: var(--text-primary);
 }
 
 .close-btn {
@@ -737,6 +755,7 @@ body {
     width: 100%;
     font-size: 0.88rem;
     font-family: inherit;
+    color: var(--text-primary);
 }
 
 .filter-pills {
@@ -748,7 +767,7 @@ body {
     padding: 6px 12px;
     border-radius: var(--radius-full);
     border: 1px solid var(--border-color);
-    background: #ffffff;
+    background: var(--bg-card);
     font-size: 0.78rem;
     font-weight: 700;
     color: var(--text-secondary);
@@ -777,7 +796,7 @@ body {
     padding: 12px;
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
-    background: #ffffff;
+    background: var(--bg-card);
     cursor: pointer;
 }
 
@@ -829,6 +848,8 @@ body {
     padding: 10px 12px;
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
+    background: var(--bg-main);
+    color: var(--text-primary);
     font-family: inherit;
     font-size: 0.88rem;
     outline: none;
@@ -858,7 +879,7 @@ body {
 .preview-text {
     font-size: 0.85rem;
     color: var(--text-primary);
-    background: #ffffff;
+    background: var(--bg-card);
     padding: 8px 10px;
     border-radius: 6px;
     border: 1px solid var(--border-color);
@@ -886,11 +907,11 @@ body {
 }
 
 .setup-section code {
-    background: #e2e8f0;
+    background: var(--border-color);
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 0.8rem;
-    color: #0f172a;
+    color: var(--text-primary);
 }
 
 .btn-primary {
@@ -914,7 +935,7 @@ body {
     cursor: pointer;
 }
 
-/* Toast */
+/* Toast Notification */
 .toast {
     position: absolute;
     bottom: 90px;
