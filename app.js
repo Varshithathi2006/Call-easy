@@ -15,10 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTheme = 'light';
 
     let templates = {
-        company: 'Acme Corp Hiring Team',
-        whatsapp: 'Hi {name}, thank you for taking the time to speak with us today regarding your application at {company}. Feel free to reply here if you have any questions!',
-        emailSubject: 'Follow-up regarding your application - {company}',
-        emailBody: 'Hi {name},\n\nThank you for speaking with our recruiting team today at {company}.\n\nPlease let us know if you need any additional details or have any questions in the meantime.\n\nBest regards,\n{company} Recruitment Team'
+        company: 'Saveetha Admissions Cell',
+        whatsapp: 'Hi {name}, thank you for speaking with our Admissions team today regarding your application at {company}. Complete your online application here: https://admission.saveetha.com/ . Feel free to reply here if you have any questions!',
+        emailSubject: 'Official Admission Follow-up & Next Steps - {company}',
+        emailBody: 'Dear {name},\n\nThank you for speaking with the Admissions Cell team today regarding your higher education application at {company}.\n\nPlease complete your official online application form at your earliest convenience using the link below:\n\n👉 Application Portal: https://admission.saveetha.com/\n\nPlease let us know if you need any assistance or have any questions in the meantime.\n\nWarm regards,\nSaveetha Admissions Cell Team'
     };
 
     // ----------------------------------------------------
